@@ -17,8 +17,11 @@ public class RaceRenderer {
             RaceWorld world
     ) {
 
-        float roadLeft = world.getRoadLeft();
-        float roadRight = world.getRoadRight();
+        float roadLeft =
+                world.getRoadLeft();
+
+        float roadRight =
+                world.getRoadRight();
 
         shapes.begin(
                 ShapeRenderer.ShapeType.Filled
@@ -93,17 +96,22 @@ public class RaceRenderer {
 
         float offset =
                 world.getRoadOffset()
-                % (dashHeight + gap);
+                        % (dashHeight + gap);
 
-        for (int lane = 1; lane <= 2; lane++) {
+        for (
+                int lane = 1;
+                lane <= 2;
+                lane++
+        ) {
 
             float x =
-                    roadLeft +
-                    laneWidth * lane -
-                    4f;
+                    roadLeft
+                            + laneWidth * lane
+                            - 4f;
 
             for (
-                    float y = -dashHeight + offset;
+                    float y =
+                            -dashHeight + offset;
                     y < screenHeight;
                     y += dashHeight + gap
             ) {
@@ -120,10 +128,157 @@ public class RaceRenderer {
         shapes.end();
     }
 
-    public void renderPlayer(PlayerBike bike) {
+    public void renderEnemies(
+            RaceWorld world
+    ) {
 
-        float x = bike.getX();
-        float y = bike.getY();
+        shapes.begin(
+                ShapeRenderer.ShapeType.Filled
+        );
+
+        for (
+                EnemyBike enemy :
+                world.getEnemies()
+        ) {
+
+            if (!enemy.isActive()) {
+                continue;
+            }
+
+            drawEnemy(enemy);
+        }
+
+        shapes.end();
+    }
+
+    private void drawEnemy(
+            EnemyBike enemy
+    ) {
+
+        float x =
+                enemy.getX();
+
+        float y =
+                enemy.getY();
+
+        // Wheels
+        shapes.setColor(Color.BLACK);
+
+        shapes.rect(
+                x + 12f,
+                y - 5f,
+                10f,
+                25f
+        );
+
+        shapes.rect(
+                x + 12f,
+                y + enemy.getHeight() - 20f,
+                10f,
+                25f
+        );
+
+        // Body
+        shapes.setColor(
+                new Color(
+                        0.10f,
+                        0.30f,
+                        0.90f,
+                        1f
+                )
+        );
+
+        shapes.triangle(
+                x + enemy.getWidth() / 2f,
+                y + enemy.getHeight(),
+                x,
+                y + 15f,
+                x + enemy.getWidth(),
+                y + 15f
+        );
+
+        // Center
+        shapes.setColor(
+                Color.WHITE
+        );
+
+        shapes.rect(
+                x + 16f,
+                y + 28f,
+                14f,
+                25f
+        );
+    }
+
+    public void renderCoins(
+            RaceWorld world
+    ) {
+
+        shapes.begin(
+                ShapeRenderer.ShapeType.Filled
+        );
+
+        shapes.setColor(
+                new Color(
+                        1f,
+                        0.72f,
+                        0.05f,
+                        1f
+                )
+        );
+
+        for (
+                Coin coin :
+                world.getCoins()
+        ) {
+
+            if (coin.isCollected()) {
+                continue;
+            }
+
+            shapes.circle(
+                    coin.getX(),
+                    coin.getY(),
+                    coin.getRadius()
+            );
+
+            shapes.setColor(
+                    new Color(
+                            1f,
+                            0.90f,
+                            0.25f,
+                            1f
+                    )
+            );
+
+            shapes.circle(
+                    coin.getX(),
+                    coin.getY(),
+                    coin.getRadius() * 0.55f
+            );
+
+            shapes.setColor(
+                    new Color(
+                            1f,
+                            0.72f,
+                            0.05f,
+                            1f
+                    )
+            );
+        }
+
+        shapes.end();
+    }
+
+    public void renderPlayer(
+            PlayerBike bike
+    ) {
+
+        float x =
+                bike.getX();
+
+        float y =
+                bike.getY();
 
         shapes.begin(
                 ShapeRenderer.ShapeType.Filled
@@ -163,7 +318,7 @@ public class RaceRenderer {
                 25f
         );
 
-        // Body
+        // Player body
         shapes.setColor(
                 new Color(
                         0.85f,
@@ -183,14 +338,7 @@ public class RaceRenderer {
         );
 
         // Center
-        shapes.setColor(
-                new Color(
-                        0.95f,
-                        0.95f,
-                        0.95f,
-                        1f
-                )
-        );
+        shapes.setColor(Color.WHITE);
 
         shapes.rect(
                 x + 16f,
