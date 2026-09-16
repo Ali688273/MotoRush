@@ -10,15 +10,13 @@ public class PlayerProgress {
     private String selectedBikeId;
 
     private final Set<String> unlockedBikes;
-
     private final Set<String> completedStages;
 
     public PlayerProgress() {
 
-        coins = 0;
+        coins = 500;
 
-        selectedBikeId =
-                "starter";
+        selectedBikeId = "starter";
 
         unlockedBikes =
                 new HashSet<>();
@@ -26,9 +24,7 @@ public class PlayerProgress {
         completedStages =
                 new HashSet<>();
 
-        unlockedBikes.add(
-                "starter"
-        );
+        unlockedBikes.add("starter");
     }
 
     public int getCoins() {
@@ -39,28 +35,22 @@ public class PlayerProgress {
             int amount
     ) {
 
-        coins =
-                Math.max(
-                        0,
-                        coins + amount
-                );
+        if (amount <= 0) {
+            return;
+        }
+
+        coins += amount;
     }
 
     public boolean spendCoins(
             int amount
     ) {
 
-        if (
-                amount <= 0
-        ) {
-
+        if (amount <= 0) {
             return true;
         }
 
-        if (
-                coins < amount
-        ) {
-
+        if (coins < amount) {
             return false;
         }
 
@@ -77,6 +67,13 @@ public class PlayerProgress {
             String id
     ) {
 
+        if (
+                id == null ||
+                id.trim().isEmpty()
+        ) {
+            return;
+        }
+
         selectedBikeId = id;
     }
 
@@ -91,7 +88,13 @@ public class PlayerProgress {
             String id
     ) {
 
-        unlockedBikes.add(id);
+        if (
+                id != null &&
+                !id.trim().isEmpty()
+        ) {
+
+            unlockedBikes.add(id);
+        }
     }
 
     public boolean isStageCompleted(
@@ -105,7 +108,13 @@ public class PlayerProgress {
             String id
     ) {
 
-        completedStages.add(id);
+        if (
+                id != null &&
+                !id.trim().isEmpty()
+        ) {
+
+            completedStages.add(id);
+        }
     }
 
     public Set<String> getUnlockedBikes() {
