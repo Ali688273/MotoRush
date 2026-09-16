@@ -50,13 +50,31 @@ public class PlayerBike {
     ) {
 
         this.speedLevel =
-                Math.max(1, speedLevel);
+                Math.max(
+                        1,
+                        Math.min(
+                                EconomyConfig.MAX_UPGRADE_LEVEL,
+                                speedLevel
+                        )
+                );
 
         this.handlingLevel =
-                Math.max(1, handlingLevel);
+                Math.max(
+                        1,
+                        Math.min(
+                                EconomyConfig.MAX_UPGRADE_LEVEL,
+                                handlingLevel
+                        )
+                );
 
         this.nitroLevel =
-                Math.max(1, nitroLevel);
+                Math.max(
+                        1,
+                        Math.min(
+                                EconomyConfig.MAX_UPGRADE_LEVEL,
+                                nitroLevel
+                        )
+                );
     }
 
     public String getId() {
@@ -134,6 +152,9 @@ public class PlayerBike {
     ) {
 
         return 100
-                + (currentLevel - 1) * 100;
+                + Math.max(
+                        0,
+                        currentLevel - 1
+                ) * 100;
     }
 }
