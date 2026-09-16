@@ -48,8 +48,7 @@ public class RaceWorld {
             float screenHeight
     ) {
 
-        roadWidth =
-                screenWidth * 0.68f;
+        roadWidth = screenWidth * 0.68f;
 
         roadLeft =
                 (screenWidth - roadWidth) / 2f;
@@ -85,6 +84,22 @@ public class RaceWorld {
 
         totalRacers = 5;
         playerPosition = 1;
+
+        roadOffset = 0f;
+        distance = 0f;
+
+        score = 0;
+        coinCount = 0;
+
+        crashed = false;
+        crashTimer = 0f;
+
+        finished = false;
+
+        raceTime = 0f;
+
+        enemySpawnTimer = 0f;
+        coinSpawnTimer = 0f;
     }
 
     public void update(
@@ -119,17 +134,11 @@ public class RaceWorld {
                 controller
         );
 
-        updateWorld(
-                delta
-        );
+        updateWorld(delta);
 
-        updateEnemies(
-                delta
-        );
+        updateEnemies(delta);
 
-        updateCoins(
-                delta
-        );
+        updateCoins(delta);
 
         checkEnemyCollisions();
 
@@ -183,7 +192,9 @@ public class RaceWorld {
         keepPlayerInsideRoad();
     }
 
-    private void updateWorld(float delta) {
+    private void updateWorld(
+            float delta
+    ) {
 
         roadOffset +=
                 speed * delta;
@@ -212,7 +223,9 @@ public class RaceWorld {
         }
     }
 
-    private void updateEnemies(float delta) {
+    private void updateEnemies(
+            float delta
+    ) {
 
         Iterator<EnemyBike> iterator =
                 enemies.iterator();
@@ -233,7 +246,9 @@ public class RaceWorld {
         }
     }
 
-    private void updateCoins(float delta) {
+    private void updateCoins(
+            float delta
+    ) {
 
         Iterator<Coin> iterator =
                 coins.iterator();
@@ -250,8 +265,9 @@ public class RaceWorld {
 
             if (
                     coin.isCollected()
-                    || coin.getY() < -100f
+                            || coin.getY() < -100f
             ) {
+
                 iterator.remove();
             }
         }
@@ -364,6 +380,7 @@ public class RaceWorld {
                 enemy.deactivate();
 
                 crash();
+
                 return;
             }
         }
@@ -396,7 +413,8 @@ public class RaceWorld {
                             - coin.getY();
 
             float distanceSquared =
-                    dx * dx + dy * dy;
+                    dx * dx
+                            + dy * dy;
 
             float collectDistance =
                     coin.getRadius()
@@ -461,8 +479,7 @@ public class RaceWorld {
 
     private void checkLapProgress() {
 
-        float lapDistance =
-                1000f;
+        float lapDistance = 1000f;
 
         int calculatedLap =
                 (int)
@@ -596,7 +613,7 @@ public class RaceWorld {
         return score;
     }
 
-    public int getCoins() {
+    public int getCoinsCollected() {
         return coinCount;
     }
 
