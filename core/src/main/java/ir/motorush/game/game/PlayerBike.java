@@ -2,8 +2,8 @@ package ir.motorush.game.game;
 
 public class PlayerBike {
 
-    private String id;
-    private String name;
+    private final String id;
+    private final String name;
 
     private float speed;
     private float acceleration;
@@ -11,6 +11,12 @@ public class PlayerBike {
     private float braking;
 
     private int level;
+
+    private float x;
+    private float y;
+
+    private float width;
+    private float height;
 
     public PlayerBike(
             String id,
@@ -29,6 +35,34 @@ public class PlayerBike {
         this.braking = braking;
 
         this.level = 1;
+
+        this.width = 46f;
+        this.height = 82f;
+    }
+
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void move(float amount) {
+        x += amount;
+    }
+
+    public float getX() {
+        return x;
+    }
+
+    public float getY() {
+        return y;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
     }
 
     public String getId() {
