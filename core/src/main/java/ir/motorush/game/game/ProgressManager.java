@@ -22,6 +22,15 @@ public class ProgressManager {
     private static final String KEY_COMPLETED =
             "completed_stages";
 
+    private static final String KEY_SPEED_PREFIX =
+            "speed_";
+
+    private static final String KEY_HANDLING_PREFIX =
+            "handling_";
+
+    private static final String KEY_NITRO_PREFIX =
+            "nitro_";
+
     private final Preferences preferences;
 
     public ProgressManager() {
@@ -37,12 +46,28 @@ public class ProgressManager {
         PlayerProgress progress =
                 new PlayerProgress();
 
-        progress.addCoins(
+        int savedCoins =
                 preferences.getInteger(
                         KEY_COINS,
-                        0
+                        EconomyConfig.STARTING_COINS
+                );
+
+        /*
+         * PlayerProgress خودش 500 سکه اولیه دارد.
+         * مقدار ذخیره‌شده فقط وقتی وجود داشته باشد
+         * جایگزین می‌شود.
+         */
+        if (
+                preferences.contains(
+                        KEY_COINS
                 )
-        );
+        ) {
+
+            progress =
+                    createProgressWithCoins(
+                            savedCoins
+                    );
+        }
 
         String selected =
                 preferences.getString(
@@ -67,7 +92,9 @@ public class ProgressManager {
 
             for (String id : ids) {
 
-                if (!id.trim().isEmpty()) {
+                if (
+                        !id.trim().isEmpty()
+                ) {
 
                     progress.unlockBike(
                             id.trim()
@@ -89,13 +116,42 @@ public class ProgressManager {
 
             for (String stage : stages) {
 
-                if (!stage.trim().isEmpty()) {
+                if (
+                        !stage.trim().isEmpty()
+                ) {
 
                     progress.completeStage(
                             stage.trim()
                     );
                 }
             }
+        }
+
+        return progress;
+    }
+
+    private PlayerProgress createProgressWithCoins(
+            int coins
+    ) {
+
+        PlayerProgress progress =
+                new PlayerProgress();
+
+        int difference =
+                coins
+                        - EconomyConfig.STARTING_COINS;
+
+        if (difference > 0) {
+
+            progress.addCoins(
+                    difference
+            );
+
+        } else if (difference < 0) {
+
+            progress.spendCoins(
+                    -difference
+            );
         }
 
         return progress;
@@ -132,6 +188,81 @@ public class ProgressManager {
         preferences.flush();
     }
 
+    public int getUpgradeLevel(
+            String bikeId,
+            UpgradeType type
+    ) {
+
+        String key =
+                getUpgradeKey(
+                        bikeId,
+                        type
+                );
+
+        return preferences.getInteger(
+                key,
+                1
+        );
+    }
+
+    public void saveUpgradeLevel(
+            String bikeId,
+            UpgradeType type,
+            int level
+    ) {
+
+        int safeLevel =
+                Math.max(
+                        1,
+                        Math.min(
+                                EconomyConfig.MAX_UPGRADE_LEVEL,
+                                level
+                        )
+                );
+
+        preferences.putInteger(
+                getUpgradeKey(
+                        bikeId,
+                        type
+                ),
+                safeLevel
+        );
+
+        preferences.flush();
+    }
+
+    private String getUpgradeKey(
+            String bikeId,
+            UpgradeType type
+    ) {
+
+        String prefix;
+
+        switch (type) {
+
+            case SPEED:
+                prefix =
+                        KEY_SPEED_PREFIX;
+                break;
+
+            case HANDLING:
+                prefix =
+                        KEY_HANDLING_PREFIX;
+                break;
+
+            case NITRO:
+                prefix =
+                        KEY_NITRO_PREFIX;
+                break;
+
+            default:
+                prefix = "upgrade_";
+                break;
+        }
+
+        return prefix + bikeId;
+    }
+
     private String join(
             Set<String> values
     ) {
@@ -141,7 +272,10 @@ public class ProgressManager {
 
         for (String value : values) {
 
-            if (builder.length() > 0) {
+            if (
+                    builder.length() > 0
+            ) {
+
                 builder.append(",");
             }
 
