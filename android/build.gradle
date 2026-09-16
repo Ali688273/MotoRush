@@ -1,0 +1,36 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'ir.motorush.game'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'ir.motorush.game'
+        minSdk 23
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+
+        debug {
+            minifyEnabled false
+        }
+    }
+}
+
+dependencies {
+    implementation project(":core")
+
+    implementation 'com.badlogicgames.gdx:gdx-backend-android:1.13.5'
+    implementation 'com.badlogicgames.gdx:gdx-platform:1.13.5:natives-armeabi-v7a'
+    implementation 'com.badlogicgames.gdx:gdx-platform:1.13.5:natives-arm64-v8a'
+    implementation 'com.badlogicgames.gdx:gdx-platform:1.13.5:natives-x86'
+    implementation 'com.badlogicgames.gdx:gdx-platform:1.13.5:natives-x86_64'
+}
