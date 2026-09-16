@@ -5,64 +5,58 @@ public class PlayerBike {
     private final String id;
     private final String name;
 
-    private float speed;
-    private float acceleration;
-    private float handling;
-    private float braking;
+    private final float width;
+    private final float height;
 
-    private int level;
+    private final float baseSpeed;
+    private final float baseHandling;
+    private final float baseNitro;
 
     private float x;
     private float y;
 
-    private float width;
-    private float height;
+    private int speedLevel;
+    private int handlingLevel;
+    private int nitroLevel;
 
     public PlayerBike(
             String id,
             String name,
+            float width,
+            float height,
             float speed,
-            float acceleration,
-            float handling,
-            float braking
+            float handling
     ) {
+
         this.id = id;
         this.name = name;
 
-        this.speed = speed;
-        this.acceleration = acceleration;
-        this.handling = handling;
-        this.braking = braking;
+        this.width = width;
+        this.height = height;
 
-        this.level = 1;
+        this.baseSpeed = speed;
+        this.baseHandling = handling;
+        this.baseNitro = 5f;
 
-        this.width = 46f;
-        this.height = 82f;
+        this.speedLevel = 1;
+        this.handlingLevel = 1;
+        this.nitroLevel = 1;
     }
 
-    public void setPosition(float x, float y) {
-        this.x = x;
-        this.y = y;
-    }
+    public void setUpgradeLevels(
+            int speedLevel,
+            int handlingLevel,
+            int nitroLevel
+    ) {
 
-    public void move(float amount) {
-        x += amount;
-    }
+        this.speedLevel =
+                Math.max(1, speedLevel);
 
-    public float getX() {
-        return x;
-    }
+        this.handlingLevel =
+                Math.max(1, handlingLevel);
 
-    public float getY() {
-        return y;
-    }
-
-    public float getWidth() {
-        return width;
-    }
-
-    public float getHeight() {
-        return height;
+        this.nitroLevel =
+                Math.max(1, nitroLevel);
     }
 
     public String getId() {
@@ -73,43 +67,73 @@ public class PlayerBike {
         return name;
     }
 
-    public float getSpeed() {
-        return speed;
+    public float getX() {
+        return x;
     }
 
-    public float getAcceleration() {
-        return acceleration;
+    public float getY() {
+        return y;
+    }
+
+    public void setPosition(
+            float x,
+            float y
+    ) {
+
+        this.x = x;
+        this.y = y;
+    }
+
+    public void move(
+            float amount
+    ) {
+
+        x += amount;
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public float getSpeed() {
+
+        return baseSpeed
+                + (speedLevel - 1) * 22f;
     }
 
     public float getHandling() {
-        return handling;
+
+        return baseHandling
+                + (handlingLevel - 1) * 1.5f;
     }
 
-    public float getBraking() {
-        return braking;
+    public float getNitro() {
+
+        return baseNitro
+                + (nitroLevel - 1) * 18f;
     }
 
-    public int getLevel() {
-        return level;
+    public int getSpeedLevel() {
+        return speedLevel;
     }
 
-    public void upgradeSpeed(float amount) {
-        speed += amount;
-        level++;
+    public int getHandlingLevel() {
+        return handlingLevel;
     }
 
-    public void upgradeAcceleration(float amount) {
-        acceleration += amount;
-        level++;
+    public int getNitroLevel() {
+        return nitroLevel;
     }
 
-    public void upgradeHandling(float amount) {
-        handling += amount;
-        level++;
-    }
+    public int getUpgradeCost(
+            int currentLevel
+    ) {
 
-    public void upgradeBraking(float amount) {
-        braking += amount;
-        level++;
+        return 100
+                + (currentLevel - 1) * 100;
     }
 }
