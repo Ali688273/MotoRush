@@ -17,6 +17,8 @@ public class RaceWorld {
     private final List<EnemyBike> enemies;
     private final List<Coin> coins;
 
+    private final ProgressManager progressManager;
+
     private float roadOffset;
     private float distance;
 
@@ -48,7 +50,44 @@ public class RaceWorld {
             float screenHeight
     ) {
 
-        roadWidth = screenWidth * 0.68f;
+        progressManager =
+                new ProgressManager();
+
+        PlayerProgress progress =
+                progressManager.load();
+
+        BikeData selectedBike =
+                BikeRepository.findById(
+                        progress.getSelectedBikeId()
+                );
+
+        player =
+                new PlayerBike(
+                        selectedBike.getId(),
+                        selectedBike.getName(),
+                        160f,
+                        30f,
+                        selectedBike.getSpeed(),
+                        selectedBike.getHandling()
+                );
+
+        player.setUpgradeLevels(
+                progressManager.getUpgradeLevel(
+                        selectedBike.getId(),
+                        UpgradeType.SPEED
+                ),
+                progressManager.getUpgradeLevel(
+                        selectedBike.getId(),
+                        UpgradeType.HANDLING
+                ),
+                progressManager.getUpgradeLevel(
+                        selectedBike.getId(),
+                        UpgradeType.NITRO
+                )
+        );
+
+        roadWidth =
+                screenWidth * 0.68f;
 
         roadLeft =
                 (screenWidth - roadWidth) / 2f;
@@ -56,28 +95,27 @@ public class RaceWorld {
         roadRight =
                 roadLeft + roadWidth;
 
-        player = new PlayerBike(
-                "starter",
-                "Street Rider",
-                160f,
-                30f,
-                5f,
-                5f
-        );
-
         player.setPosition(
                 screenWidth / 2f
                         - player.getWidth() / 2f,
                 screenHeight * 0.20f
         );
 
-        normalSpeed = 260f;
-        nitroSpeed = 440f;
+        normalSpeed =
+                player.getSpeed() * 1.55f;
 
-        speed = normalSpeed;
+        nitroSpeed =
+                normalSpeed
+                        + player.getNitro() * 8f;
 
-        enemies = new ArrayList<>();
-        coins = new ArrayList<>();
+        speed =
+                normalSpeed;
+
+        enemies =
+                new ArrayList<>();
+
+        coins =
+                new ArrayList<>();
 
         currentLap = 1;
         totalLaps = 3;
@@ -159,11 +197,12 @@ public class RaceWorld {
                         ? nitroSpeed
                         : normalSpeed;
 
-        speed = MathUtils.lerp(
-                speed,
-                targetSpeed,
-                delta * 6f
-        );
+        speed =
+                MathUtils.lerp(
+                        speed,
+                        targetSpeed,
+                        delta * 6f
+                );
     }
 
     private void updatePlayer(
@@ -203,19 +242,27 @@ public class RaceWorld {
                 speed * delta * 0.01f;
 
         score +=
-                (int) (speed * delta * 0.1f);
+                (int) (
+                        speed
+                                * delta
+                                * 0.1f
+                );
 
         enemySpawnTimer += delta;
         coinSpawnTimer += delta;
 
-        if (enemySpawnTimer >= 1.2f) {
+        if (
+                enemySpawnTimer >= 1.2f
+        ) {
 
             spawnEnemy();
 
             enemySpawnTimer = 0f;
         }
 
-        if (coinSpawnTimer >= 0.8f) {
+        if (
+                coinSpawnTimer >= 0.8f
+        ) {
 
             spawnCoin();
 
@@ -418,7 +465,8 @@ public class RaceWorld {
 
             float collectDistance =
                     coin.getRadius()
-                            + player.getWidth() * 0.45f;
+                            + player.getWidth()
+                            * 0.45f;
 
             if (
                     distanceSquared
@@ -479,7 +527,8 @@ public class RaceWorld {
 
     private void checkLapProgress() {
 
-        float lapDistance = 1000f;
+        float lapDistance =
+                1000f;
 
         int calculatedLap =
                 (int)
@@ -510,7 +559,10 @@ public class RaceWorld {
 
     public void crash() {
 
-        if (!crashed && !finished) {
+        if (
+                !crashed
+                        && !finished
+        ) {
 
             crashed = true;
 
@@ -556,7 +608,9 @@ public class RaceWorld {
                         - player.getWidth()
                         - 20f;
 
-        if (player.getX() < minX) {
+        if (
+                player.getX() < minX
+        ) {
 
             player.setPosition(
                     minX,
@@ -564,7 +618,9 @@ public class RaceWorld {
             );
         }
 
-        if (player.getX() > maxX) {
+        if (
+                player.getX() > maxX
+        ) {
 
             player.setPosition(
                     maxX,
@@ -643,5 +699,13 @@ public class RaceWorld {
 
     public int getTotalRacers() {
         return totalRacers;
+    }
+
+    public RaceReward getRaceReward() {
+
+        return new RaceReward(
+                playerPosition,
+                coinCount
+        );
     }
 }
