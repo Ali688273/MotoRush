@@ -2,8 +2,8 @@ package ir.motorush.game.screen;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -28,9 +28,11 @@ public class RaceScreen implements Screen {
     private float screenWidth;
     private float screenHeight;
 
-    private boolean paused;
+    private boolean finishedScreen;
 
-    public RaceScreen(MotoRushGame game) {
+    public RaceScreen(
+            MotoRushGame game
+    ) {
 
         this.game = game;
 
@@ -44,14 +46,17 @@ public class RaceScreen implements Screen {
         screenHeight =
                 Gdx.graphics.getHeight();
 
-        world = new RaceWorld(
-                screenWidth,
-                screenHeight
-        );
+        world =
+                new RaceWorld(
+                        screenWidth,
+                        screenHeight
+                );
 
-        renderer = new RaceRenderer();
+        renderer =
+                new RaceRenderer();
 
-        controller = new TouchController();
+        controller =
+                new TouchController();
     }
 
     @Override
@@ -60,7 +65,9 @@ public class RaceScreen implements Screen {
     }
 
     @Override
-    public void render(float delta) {
+    public void render(
+            float delta
+    ) {
 
         Gdx.gl.glClearColor(
                 0.02f,
@@ -81,20 +88,29 @@ public class RaceScreen implements Screen {
 
         controller.update();
 
-        if (!paused) {
+        if (!finishedScreen) {
+
             world.update(
                     Math.min(delta, 0.05f),
                     controller
             );
+
+            if (world.isFinished()) {
+                finishedScreen = true;
+            }
         }
 
         drawGame();
 
         drawHud();
 
-        drawControls();
+        if (!finishedScreen) {
+            drawControls();
+        } else {
+            drawFinishScreen();
+        }
 
-        handleBackButton();
+        handleTouch();
     }
 
     private void drawGame() {
@@ -102,6 +118,14 @@ public class RaceScreen implements Screen {
         renderer.renderRoad(
                 screenWidth,
                 screenHeight,
+                world
+        );
+
+        renderer.renderCoins(
+                world
+        );
+
+        renderer.renderEnemies(
                 world
         );
 
@@ -116,30 +140,50 @@ public class RaceScreen implements Screen {
 
         font.setColor(Color.WHITE);
 
-        font.getData().setScale(1.35f);
+        font.getData().setScale(1.25f);
 
         font.draw(
                 batch,
                 "SPEED  " +
                         (int) world.getSpeed(),
-                30,
-                screenHeight - 30
+                25,
+                screenHeight - 25
         );
 
         font.draw(
                 batch,
                 "SCORE  " +
                         world.getScore(),
-                30,
-                screenHeight - 70
+                25,
+                screenHeight - 65
         );
 
         font.draw(
                 batch,
                 "COINS  " +
                         world.getCoins(),
-                30,
-                screenHeight - 110
+                25,
+                screenHeight - 105
+        );
+
+        font.draw(
+                batch,
+                "POS  " +
+                        world.getPlayerPosition()
+                        + "/"
+                        + world.getTotalRacers(),
+                screenWidth - 170,
+                screenHeight - 25
+        );
+
+        font.draw(
+                batch,
+                "LAP  "
+                        + world.getCurrentLap()
+                        + "/"
+                        + world.getTotalLaps(),
+                screenWidth - 170,
+                screenHeight - 65
         );
 
         batch.end();
@@ -160,18 +204,15 @@ public class RaceScreen implements Screen {
         float leftX = margin;
 
         float rightX =
-                screenWidth -
-                buttonSize -
-                margin;
+                screenWidth
+                        - buttonSize
+                        - margin;
 
         float nitroSize =
                 Math.min(
                         screenWidth * 0.13f,
                         120f
                 );
-
-        float nitroX =
-                (screenWidth - nitroSize) / 2f;
 
         shapes.begin(
                 ShapeRenderer.ShapeType.Filled
@@ -226,47 +267,119 @@ public class RaceScreen implements Screen {
         font.draw(
                 batch,
                 "<",
-                leftX + buttonSize * 0.40f,
-                y + buttonSize * 0.64f
+                leftX
+                        + buttonSize * 0.40f,
+                y
+                        + buttonSize * 0.64f
         );
 
         font.draw(
                 batch,
                 ">",
-                rightX + buttonSize * 0.40f,
-                y + buttonSize * 0.64f
+                rightX
+                        + buttonSize * 0.40f,
+                y
+                        + buttonSize * 0.64f
+        );
+
+        font.getData().setScale(1.1f);
+
+        font.draw(
+                batch,
+                "NITRO",
+                screenWidth / 2f - 30f,
+                y
+                        + nitroSize / 2f
+                        + 5f
+        );
+
+        batch.end();
+    }
+
+    private void drawFinishScreen() {
+
+        shapes.begin(
+                ShapeRenderer.ShapeType.Filled
+        );
+
+        shapes.setColor(
+                new Color(
+                        0f,
+                        0f,
+                        0f,
+                        0.75f
+                )
+        );
+
+        shapes.rect(
+                0,
+                0,
+                screenWidth,
+                screenHeight
+        );
+
+        shapes.end();
+
+        batch.begin();
+
+        font.setColor(Color.WHITE);
+
+        font.getData().setScale(2.4f);
+
+        font.draw(
+                batch,
+                "RACE FINISHED",
+                screenWidth * 0.33f,
+                screenHeight * 0.70f
+        );
+
+        font.getData().setScale(1.5f);
+
+        font.draw(
+                batch,
+                "POSITION  "
+                        + world.getPlayerPosition()
+                        + "/"
+                        + world.getTotalRacers(),
+                screenWidth * 0.35f,
+                screenHeight * 0.58f
+        );
+
+        font.draw(
+                batch,
+                "SCORE  "
+                        + world.getScore(),
+                screenWidth * 0.40f,
+                screenHeight * 0.50f
+        );
+
+        font.draw(
+                batch,
+                "COINS  "
+                        + world.getCoins(),
+                screenWidth * 0.40f,
+                screenHeight * 0.43f
         );
 
         font.getData().setScale(1.2f);
 
         font.draw(
                 batch,
-                "NITRO",
-                screenWidth / 2f - 32f,
-                y + nitroSize / 2f + 5f
+                "TAP TO RETURN",
+                screenWidth * 0.40f,
+                screenHeight * 0.28f
         );
 
         batch.end();
     }
 
-    private void handleBackButton() {
+    private void handleTouch() {
 
         if (!Gdx.input.justTouched()) {
             return;
         }
 
-        float x =
-                Gdx.input.getX();
-
-        float y =
-                screenHeight -
-                Gdx.input.getY();
-
-        // بالا سمت چپ = Pause / Menu
-        if (
-                x < 150f &&
-                y > screenHeight - 150f
-        ) {
+        if (finishedScreen) {
 
             game.setScreen(
                     new MainMenuScreen(game)
@@ -288,12 +401,10 @@ public class RaceScreen implements Screen {
 
     @Override
     public void pause() {
-        paused = true;
     }
 
     @Override
     public void resume() {
-        paused = false;
     }
 
     @Override
