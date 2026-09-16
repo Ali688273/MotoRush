@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'ir.motorush.game'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId 'ir.motorush.game'
